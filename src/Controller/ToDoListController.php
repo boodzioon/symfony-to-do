@@ -14,7 +14,7 @@ final class ToDoListController extends AbstractController
     #[Route('/', name: 'app_to_do_list')]
     public function index(EntityManagerInterface $em): Response
     {
-        $tasks = $em->getRepository(Task::class)->findAll();
+        $tasks = $em->getRepository(Task::class)->findBy([], ['status' => 'ASC', 'title' => 'ASC']);
 
         return $this->render('index.html.twig', [
             'tasks' => $tasks ?? []
@@ -39,8 +39,7 @@ final class ToDoListController extends AbstractController
     public function switchStatus(int $id, EntityManagerInterface $em): Response
     {
         $task = $em->getRepository(Task::class)->find($id);
-        $task->setStatus(!$task->isStatus());
-        $em->persist($task);
+        $task->setStatus(!$task->getStatus());
         $em->flush();
         return $this->redirectToRoute('app_to_do_list');
     }
