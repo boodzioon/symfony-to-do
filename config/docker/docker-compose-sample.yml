@@ -1,0 +1,48 @@
+services:
+  symfony-to-do-web:
+    container_name: symfony-to-do-web
+    image: shinsenter/symfony:php8.3
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - symfony-to-do-db
+    volumes:
+      - ./app:/var/www/html
+    environment:
+      PHP_DISPLAY_ERRORS: "1"
+      PHP_POST_MAX_SIZE: "100M"
+      PHP_UPLOAD_MAX_FILESIZE: "16M"
+      PHP_SHORT_OPEN_TAG: false
+      DATABASE_USER: username
+      DATABASE_PASSWORD: password
+      DATABASE_DB: database
+      DATABASE_HOST: symfony-to-do-db
+  symfony-to-do-node:
+    container_name: symfony-to-do-node
+    image: node:lts-alpine
+    command: sh -c "npm install && ./node_modules/.bin/encore production --watch"
+    working_dir: /app
+    volumes:
+      - ./app:/app
+  symfony-to-do-db:
+    container_name: symfony-to-do-db
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
+  symfony-to-do-db-admin:
+    container_name: symfony-to-do-db-admin
+    image: dpage/pgadmin4
+    ports:
+      - 5050:5050
+    depends_on:
+      - symfony-to-do-db
+    environment:
+      PGADMIN_LISTEN_PORT: 5050
+      PGADMIN_DEFAULT_EMAIL: boodzioo_n@o2.pl
+      PGADMIN_DEFAULT_PASSWORD: password
+      DATABASE_HOST: symfony-to-do-db
